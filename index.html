@@ -1,0 +1,2032 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medical Test Appointment Scheduler | Smart Healthcare Scheduling</title>
+  
+  <!-- SEO & Open Graph Metadata -->
+  <meta name="description" content="Smart medical test appointment scheduling for hospitals, diagnostic centers, clinics, laboratories, and healthcare organizations.">
+  <meta name="keywords" content="medical scheduling, diagnostic appointment scheduler, radiology booking, MRI scheduling, healthcare SaaS, patient queue algorithms">
+  <meta property="og:title" content="Medical Test Appointment Scheduler | Smart Healthcare Scheduling">
+  <meta property="og:description" content="Intelligent multi-room, multi-equipment diagnostic test scheduling powered by greedy priority queues, divide & conquer, and dynamic programming.">
+  <meta property="og:type" content="website">
+
+  <!-- Favicon SVG -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230284c7'><path d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z'/></svg>">
+
+  <!-- Tailwind CSS CDN for Modern Layout Utilities -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e'
+            },
+            tealbrand: {
+              50: '#f0fdfa',
+              600: '#0d9488',
+              700: '#0f766e',
+              800: '#115e59'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom Design System Stylesheet & Print Rules -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-sky-500 selection:text-white">
+
+  <!-- ====================================================================
+       1. STICKY MODERN NAVIGATION BAR
+       ==================================================================== -->
+  <header class="sticky top-0 z-40 w-full glass-nav border-b border-slate-200/80 transition-all duration-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 sm:h-20">
+        
+        <!-- Brand Logo & Name -->
+        <a href="#hero" class="flex items-center gap-3 group">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-teal-600 flex items-center justify-center text-white shadow-md shadow-sky-600/20 group-hover:scale-105 transition-transform">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+          </div>
+          <div>
+            <span class="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
+              <span data-config="BUSINESS_NAME">MedSched AI</span>
+              <span class="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200">Healthcare</span>
+            </span>
+            <span class="block text-[11px] text-slate-500 font-medium" data-config="BUSINESS_TAGLINE">Smart Scheduling for Modern Healthcare</span>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="hidden lg:flex items-center gap-7 text-sm font-semibold text-slate-600">
+          <a href="#hero" class="hover:text-sky-600 transition-colors">Home</a>
+          <a href="#features" class="hover:text-sky-600 transition-colors">Features</a>
+          <a href="#ai-tools" class="hover:text-sky-600 transition-colors">AI Tools</a>
+          <a href="#scheduler" class="hover:text-sky-600 transition-colors">Scheduler</a>
+          <a href="#algorithms" class="hover:text-sky-600 transition-colors">Algorithms</a>
+          <a href="#dashboard" class="hover:text-sky-600 transition-colors">Dashboard</a>
+          <a href="#client-benefits" class="hover:text-sky-600 transition-colors">About</a>
+          <a href="#lead-section" class="hover:text-sky-600 transition-colors">Contact</a>
+        </nav>
+
+        <!-- CTA Action Buttons -->
+        <div class="hidden sm:flex items-center gap-3">
+          <button type="button" class="scroll-to-scheduler px-4 py-2 text-sm font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 rounded-xl transition-all shadow-sm">
+            Try Scheduler
+          </button>
+          <button type="button" class="scroll-to-contact px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-sky-600 to-teal-600 hover:from-sky-700 hover:to-teal-700 rounded-xl shadow-md shadow-sky-600/20 transition-all">
+            Book a Demo
+          </button>
+        </div>
+
+        <!-- Mobile Hamburger Menu Button -->
+        <div class="flex items-center lg:hidden">
+          <button id="mobile-menu-btn" type="button" aria-label="Toggle Navigation Menu" class="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-none">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer Overlay & Menu -->
+  <div id="mobile-overlay" class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm hidden transition-opacity"></div>
+  <div id="mobile-drawer" class="fixed top-0 right-0 z-50 w-80 max-w-full h-full bg-white shadow-2xl p-6 flex flex-col justify-between hidden transform transition-transform">
+    <div>
+      <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+        <span class="font-bold text-slate-900" data-config="BUSINESS_NAME">MedSched</span>
+        <button id="mobile-drawer-close" onclick="document.getElementById('mobile-drawer').classList.add('hidden'); document.getElementById('mobile-overlay').classList.add('hidden');" class="p-1 rounded-lg text-slate-500 hover:bg-slate-100">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+      <div class="flex flex-col gap-4 mt-6 text-sm font-semibold text-slate-700">
+        <a href="#hero" class="mobile-nav-link hover:text-sky-600">Home</a>
+        <a href="#features" class="mobile-nav-link hover:text-sky-600">Features</a>
+        <a href="#ai-tools" class="mobile-nav-link hover:text-sky-600">AI Tools</a>
+        <a href="#scheduler" class="mobile-nav-link hover:text-sky-600">Interactive Scheduler</a>
+        <a href="#algorithms" class="mobile-nav-link hover:text-sky-600">Algorithms Behind the Engine</a>
+        <a href="#dashboard" class="mobile-nav-link hover:text-sky-600">Live Demo Dashboard</a>
+        <a href="#client-benefits" class="mobile-nav-link hover:text-sky-600">Why Healthcare Providers Choose Us</a>
+        <a href="#faq" class="mobile-nav-link hover:text-sky-600">FAQ</a>
+        <a href="#lead-section" class="mobile-nav-link hover:text-sky-600">Contact & Leads</a>
+      </div>
+    </div>
+    <div class="space-y-3 pt-6 border-t border-slate-200">
+      <button type="button" class="scroll-to-scheduler w-full py-2.5 text-center text-sm font-semibold text-sky-700 bg-sky-50 rounded-xl border border-sky-200">
+        Try the Scheduler
+      </button>
+      <button type="button" class="scroll-to-contact w-full py-2.5 text-center text-sm font-semibold text-white bg-gradient-to-r from-sky-600 to-teal-600 rounded-xl shadow-md">
+        Book a Demo
+      </button>
+    </div>
+  </div>
+
+
+  <!-- ====================================================================
+       2. HERO SECTION
+       ==================================================================== -->
+  <section id="hero" class="relative overflow-hidden pt-12 pb-20 md:py-24 gradient-mesh border-b border-slate-200/60">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        
+        <!-- Hero Text & CTAs -->
+        <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+          
+          <!-- Product Status Badge -->
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-50 border border-sky-200 text-sky-800 text-xs font-semibold shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 live-dot"></span>
+            <span>Intelligent Diagnostic Operations Platform</span>
+            <span class="text-slate-300">|</span>
+            <span class="text-slate-500">Live Demo Mode</span>
+          </div>
+
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.12]">
+            Smarter Medical Test <span class="bg-clip-text text-transparent bg-gradient-to-r from-sky-600 to-teal-600">Scheduling</span>
+          </h1>
+
+          <p class="text-lg sm:text-xl text-slate-600 font-normal leading-relaxed max-w-2xl mx-auto lg:mx-0">
+            Coordinate patients, diagnostic tests, rooms, priorities, and appointments through one intelligent scheduling workflow.
+          </p>
+
+          <!-- Action Buttons (Working) -->
+          <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+            <button type="button" class="scroll-to-scheduler px-6 py-3.5 text-base font-semibold text-white bg-gradient-to-r from-sky-600 to-teal-600 hover:from-sky-700 hover:to-teal-700 rounded-xl shadow-lg shadow-sky-600/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+              Try the Scheduler
+            </button>
+            <button type="button" class="scroll-to-contact px-6 py-3.5 text-base font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl shadow-sm transition-all hover:border-slate-400">
+              Book a Demo
+            </button>
+            <button type="button" class="scroll-to-algorithms px-5 py-3.5 text-sm font-semibold text-sky-700 hover:text-sky-800 hover:bg-sky-50 rounded-xl transition-colors">
+              Explore the Algorithms →
+            </button>
+          </div>
+
+          <!-- Proof points -->
+          <div class="grid grid-cols-3 gap-4 pt-6 border-t border-slate-200/80 max-w-lg mx-auto lg:mx-0 text-left">
+            <div>
+              <div class="text-xl sm:text-2xl font-extrabold text-slate-900">6 Test Types</div>
+              <div class="text-xs text-slate-500 font-medium">MRI, CT, US, X-Ray</div>
+            </div>
+            <div>
+              <div class="text-xl sm:text-2xl font-extrabold text-slate-900">6 Algorithms</div>
+              <div class="text-xs text-slate-500 font-medium">CS Paradigm Engines</div>
+            </div>
+            <div>
+              <div class="text-xl sm:text-2xl font-extrabold text-slate-900">0 Collisions</div>
+              <div class="text-xs text-slate-500 font-medium">Deterministic Locks</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Hero Visual: Modern Healthcare Scheduling Dashboard Illustration -->
+        <div class="lg:col-span-5">
+          <div class="relative mx-auto max-w-md lg:max-w-none">
+            
+            <!-- Glow background -->
+            <div class="absolute -inset-1.5 bg-gradient-to-r from-sky-500 to-teal-500 rounded-3xl blur opacity-25"></div>
+
+            <div class="relative bg-white rounded-2xl border border-slate-200/80 shadow-2xl p-5 overflow-hidden">
+              
+              <!-- Dashboard Mock Header -->
+              <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                  <div class="w-3 h-3 rounded-full bg-rose-400"></div>
+                  <div class="w-3 h-3 rounded-full bg-amber-400"></div>
+                  <div class="w-3 h-3 rounded-full bg-emerald-400"></div>
+                  <span class="ml-2 text-xs font-bold text-slate-700">Diagnostic Suite Coordinator</span>
+                </div>
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1 animate-pulse"></span>
+                  AI Engine Online
+                </span>
+              </div>
+
+              <!-- Live Calendar Timeline Mock -->
+              <div class="mt-4 space-y-3">
+                
+                <!-- Appointment Card 1 (Urgent MRI) -->
+                <div class="p-3 rounded-xl bg-sky-50/80 border border-sky-200 flex items-start justify-between">
+                  <div class="flex items-start gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-sky-600 text-white flex items-center justify-center font-bold text-xs">
+                      MRI
+                    </div>
+                    <div>
+                      <div class="font-bold text-xs text-slate-900">MRI Brain (45 min)</div>
+                      <div class="text-[11px] text-slate-600">Patient: Vikram S. • MRI Room 1</div>
+                      <div class="flex items-center gap-2 mt-1">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700">Urgent</span>
+                        <span class="text-[10px] text-slate-500 font-mono">09:00 - 09:45 AM</span>
+                      </div>
+                    </div>
+                  </div>
+                  <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">Confirmed</span>
+                </div>
+
+                <!-- Appointment Card 2 (CT Chest) -->
+                <div class="p-3 rounded-xl bg-teal-50/80 border border-teal-200 flex items-start justify-between">
+                  <div class="flex items-start gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-teal-600 text-white flex items-center justify-center font-bold text-xs">
+                      CT
+                    </div>
+                    <div>
+                      <div class="font-bold text-xs text-slate-900">CT Chest (30 min)</div>
+                      <div class="text-[11px] text-slate-600">Patient: Priya S. • CT Room 1</div>
+                      <div class="flex items-center gap-2 mt-1">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700">High</span>
+                        <span class="text-[10px] text-slate-500 font-mono">10:00 - 10:30 AM</span>
+                      </div>
+                    </div>
+                  </div>
+                  <span class="text-[10px] font-bold text-sky-700 bg-sky-100 px-2 py-0.5 rounded">Video Review</span>
+                </div>
+
+                <!-- Room Availability Row -->
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <div class="text-[11px] font-bold text-slate-700 mb-2 flex items-center justify-between">
+                    <span>Diagnostic Rooms Status</span>
+                    <span class="text-slate-400 font-normal">DEMO DATA</span>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2 text-center text-[10px]">
+                    <div class="p-1.5 bg-white rounded border border-emerald-200 text-emerald-800 font-semibold">
+                      MRI 1 • Free
+                    </div>
+                    <div class="p-1.5 bg-white rounded border border-amber-200 text-amber-800 font-semibold">
+                      CT 1 • Active
+                    </div>
+                    <div class="p-1.5 bg-white rounded border border-emerald-200 text-emerald-800 font-semibold">
+                      US 1 • Free
+                    </div>
+                  </div>
+                </div>
+
+                <!-- AI Recommendation Float Box -->
+                <div class="p-3 rounded-xl bg-gradient-to-r from-sky-600 to-teal-600 text-white shadow-md flex items-center justify-between">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                      ✨
+                    </div>
+                    <div>
+                      <div class="text-xs font-bold">AI Slot Recommender</div>
+                      <div class="text-[10px] text-white/90">Slot 11:00 AM • Score 96/100</div>
+                    </div>
+                  </div>
+                  <button type="button" class="scroll-to-scheduler px-2.5 py-1 text-[10px] font-bold bg-white text-sky-800 rounded-lg shadow-sm hover:bg-slate-100">
+                    Book Slot
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ====================================================================
+       3. HOW IT WORKS SECTION (Interactive Stepper)
+       ==================================================================== -->
+  <section id="how-it-works" class="py-16 bg-white border-b border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-14">
+        <h2 class="text-xs uppercase tracking-widest font-extrabold text-sky-600">Streamlined Healthcare Operations</h2>
+        <p class="text-3xl font-extrabold text-slate-900 mt-2">How Smart Scheduling Works</p>
+        <p class="text-base text-slate-500 mt-3">From appointment request to multi-constraint resolution and clinical confirmation in 6 frictionless steps.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Step 1 -->
+        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/60 card-hover-effect">
+          <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-700 font-extrabold flex items-center justify-center text-sm mb-4">
+            01
+          </div>
+          <h3 class="text-base font-bold text-slate-900 mb-1">Patient Submits Request</h3>
+          <p class="text-xs text-slate-600">Patient or clinical coordinator selects the diagnostic test, preferred date, and clinical priority level.</p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/60 card-hover-effect">
+          <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 font-extrabold flex items-center justify-center text-sm mb-4">
+            02
+          </div>
+          <h3 class="text-base font-bold text-slate-900 mb-1">System Checks Constraints</h3>
+          <p class="text-xs text-slate-600">Validates room compatibility, exact test duration (15m to 60m), equipment maintenance, and radiologist shifts.</p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/60 card-hover-effect">
+          <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 font-extrabold flex items-center justify-center text-sm mb-4">
+            03
+          </div>
+          <h3 class="text-base font-bold text-slate-900 mb-1">Scheduling Engine Evaluates</h3>
+          <p class="text-xs text-slate-600">Greedy priority queue and backtracking resolve room collisions while dynamic programming optimizes throughput.</p>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/60 card-hover-effect">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 font-extrabold flex items-center justify-center text-sm mb-4">
+            04
+          </div>
+          <h3 class="text-base font-bold text-slate-900 mb-1">AI Recommendation Generated</h3>
+          <p class="text-xs text-slate-600">Presents optimal slot with match score (0-100) and transparent explanation for clinical decision support.</p>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/60 card-hover-effect">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 font-extrabold flex items-center justify-center text-sm mb-4">
+            05
+          </div>
+          <h3 class="text-base font-bold text-slate-900 mb-1">Appointment Confirmed</h3>
+          <p class="text-xs text-slate-600">Generates unique appointment ID, locks room calendar, and assigns supervisory medical specialist.</p>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/60 card-hover-effect">
+          <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-700 font-extrabold flex items-center justify-center text-sm mb-4">
+            06
+          </div>
+          <h3 class="text-base font-bold text-slate-900 mb-1">Digital Details Dispatched</h3>
+          <p class="text-xs text-slate-600">Instant multi-channel access: Download printable receipt, send via WhatsApp, email copy, or join video consult.</p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ====================================================================
+       4. FEATURES SECTION (12 Cards)
+       ==================================================================== -->
+  <section id="features" class="py-20 bg-slate-50 border-b border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2 class="text-xs uppercase tracking-widest font-extrabold text-sky-600">Enterprise Capabilities</h2>
+        <p class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2">Comprehensive Healthcare Scheduling</p>
+        <p class="text-base text-slate-500 mt-3">Built specifically for hospitals, diagnostic imaging suites, laboratory chains, and ambulatory clinics.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Feature 1 -->
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm card-hover-effect">
+          <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 mb-2">Smart Scheduling</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">Fast automated slot allocation driven by priority queues and real-time room capacity limits.</p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm card-hover-effect">
+          <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 mb-2">Room Availability</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">Live multi-room visibility across MRI, CT, Ultrasound, and X-Ray suites with maintenance tracking.</p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm card-hover-effect">
+          <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 mb-2">Test Duration Management</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">Dynamic test duration calculations (15m X-Ray up to 60m Spine MRI) with sanitation buffers.</p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm card-hover-effect">
+          <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 mb-2">Priority Management</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">Clinical SLA routing for Urgent, High, Normal, and Routine triage with guaranteed emergency preemption.</p>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm card-hover-effect">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 mb-2">Patient Availability</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">Adapts to patient preferred morning/afternoon intervals while maintaining clinical throughput.</p>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm card-hover-effect">
+          <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 mb-2">Doctor Availability</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">Synchronizes radiologist and consulting physician rosters with diagnostic procedure timings.</p>
+        </div>
+
+        <!-- Feature 7 -->
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm card-hover-effect">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 mb-2">Conflict Detection</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">Zero double-booking guarantee via multi-dimensional collision inspection across room, doctor, and patient.</p>
+        </div>
+
+        <!-- Feature 8 -->
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm card-hover-effect">
+          <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 mb-2">Smart Rescheduling</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">Instant one-click alternative slot suggestions whenever clinical emergencies trigger schedule adjustments.</p>
+        </div>
+
+        <!-- Feature 9 -->
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm card-hover-effect">
+          <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 mb-2">Appointment Confirmation</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">Instant structured confirmation slips with printable vouchers, download files, and WhatsApp sync.</p>
+        </div>
+
+        <!-- Feature 10 -->
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm card-hover-effect">
+          <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 mb-2">Video Consultation</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">Integrated telehealth video conference capability for pre-scan triage and post-procedure radiology reviews.</p>
+        </div>
+
+        <!-- Feature 11 -->
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm card-hover-effect">
+          <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 mb-2">Analytics Dashboard</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">Real-time suite utilization metrics, daily throughput, urgent triage volumes, and department monitors.</p>
+        </div>
+
+        <!-- Feature 12 -->
+        <div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm card-hover-effect">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 mb-2">AI Recommendations</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">Transparent multi-factor scoring (0-100) balancing equipment, doctor shifts, prep protocols, and patient wait.</p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ====================================================================
+       5. AI-ASSISTED HEALTHCARE SCHEDULING SECTION (5 AI Tools)
+       ==================================================================== -->
+  <section id="ai-tools" class="py-20 bg-white border-b border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-14">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-semibold mb-2">
+          <span>✨ AI-Assisted Capabilities (DEMO TOOLS)</span>
+        </div>
+        <p class="text-3xl sm:text-4xl font-extrabold text-slate-900">Intelligent Scheduling Assistants</p>
+        <p class="text-sm text-slate-500 mt-2">
+          Interactive technology demonstrations. Does not provide medical diagnoses; designed to augment clinical administrative workflows.
+        </p>
+      </div>
+
+      <!-- AI Tools Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <!-- AI TOOL 1: SMART SLOT RECOMMENDER -->
+        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/50 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs uppercase font-extrabold tracking-wider text-sky-600">AI Tool 1</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-100 text-sky-800">Scoring Engine</span>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 mb-1">Smart Slot Recommender</h3>
+            <p class="text-xs text-slate-500 mb-4">Evaluates room readiness, procedure buffer times, and clinical priority to compute optimal appointment slots with transparent reasoning.</p>
+
+            <!-- Form -->
+            <div class="grid grid-cols-2 gap-3 text-xs mb-3">
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Patient Name</label>
+                <input id="ai-rec-patient" type="text" value="Ravi Kumar" class="w-full p-2 rounded-lg border border-slate-300 text-xs">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Diagnostic Test</label>
+                <select id="ai-rec-test" class="w-full p-2 rounded-lg border border-slate-300 text-xs">
+                  <option value="mri-brain">MRI Brain (45m)</option>
+                  <option value="mri-spine">MRI Spine (60m)</option>
+                  <option value="ct-chest">CT Chest (30m)</option>
+                  <option value="us-abdomen">Ultrasound (30m)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Priority</label>
+                <select id="ai-rec-priority" class="w-full p-2 rounded-lg border border-slate-300 text-xs">
+                  <option value="high">High (SLA: 24h)</option>
+                  <option value="urgent">Urgent (SLA: 2h)</option>
+                  <option value="normal">Normal (SLA: 3d)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Preferred Time</label>
+                <select id="ai-rec-pref-time" class="w-full p-2 rounded-lg border border-slate-300 text-xs">
+                  <option value="10:00">10:00 AM</option>
+                  <option value="11:30">11:30 AM</option>
+                  <option value="14:00">02:00 PM</option>
+                  <option value="15:30">03:30 PM</option>
+                </select>
+              </div>
+              <div class="col-span-2">
+                <label class="block font-semibold text-slate-700 mb-1">Preferred Date</label>
+                <input id="ai-rec-date" type="date" value="2026-10-03" class="w-full p-2 rounded-lg border border-slate-300 text-xs">
+              </div>
+            </div>
+
+            <button id="ai-btn-recommend" type="button" class="w-full py-2 px-4 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all">
+              Evaluate & Recommend Slot
+            </button>
+          </div>
+
+          <div id="ai-rec-output" class="mt-4">
+            <div class="p-3 bg-white border border-dashed border-slate-300 rounded-xl text-center text-xs text-slate-400">
+              Click "Evaluate & Recommend Slot" to generate an AI score and multi-point clinical explanation.
+            </div>
+          </div>
+        </div>
+
+        <!-- AI TOOL 2: SCHEDULING CONFLICT DETECTOR -->
+        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/50 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs uppercase font-extrabold tracking-wider text-amber-600">AI Tool 2</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800">Collision Guard</span>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 mb-1">Scheduling Conflict Detector</h3>
+            <p class="text-xs text-slate-500 mb-4">Simulates appointment overlap across rooms, patient schedules, and doctor review shifts. Automatically computes viable collision-free alternative windows.</p>
+
+            <div class="grid grid-cols-2 gap-3 text-xs mb-3">
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Diagnostic Suite</label>
+                <select id="ai-conf-room" class="w-full p-2 rounded-lg border border-slate-300 text-xs">
+                  <option value="mri-1">MRI Room 1 (Occupied at 10 AM)</option>
+                  <option value="ct-1">CT Room 1</option>
+                  <option value="us-1">Ultrasound Room 1</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Attempt Time Slot</label>
+                <select id="ai-conf-time" class="w-full p-2 rounded-lg border border-slate-300 text-xs">
+                  <option value="10:00">10:00 AM (Known Collision)</option>
+                  <option value="10:30">10:30 AM</option>
+                  <option value="14:00">02:00 PM</option>
+                </select>
+              </div>
+            </div>
+
+            <button id="ai-btn-detect-conflict" type="button" class="w-full py-2 px-4 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all">
+              Test Conflict Detection Engine
+            </button>
+          </div>
+
+          <div id="ai-conf-output" class="mt-4">
+            <div class="p-3 bg-white border border-dashed border-slate-300 rounded-xl text-center text-xs text-slate-400">
+              Click above to simulate an appointment collision and inspect automated alternative slot routing.
+            </div>
+          </div>
+        </div>
+
+        <!-- AI TOOL 3: APPOINTMENT PRIORITY ASSISTANT -->
+        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/50 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs uppercase font-extrabold tracking-wider text-rose-600">AI Tool 3</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-100 text-rose-800">Triage Demo</span>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 mb-1">Appointment Priority Assistant</h3>
+            <p class="text-xs text-slate-500 mb-4">Demonstration assistant that illustrates how diagnostic referrals can be mapped into Urgent, High, Normal, or Routine scheduling SLA tiers.</p>
+
+            <div class="mb-3 text-xs">
+              <label class="block font-semibold text-slate-700 mb-1">Simulated Clinical Referral Context</label>
+              <select id="ai-triage-scenario" class="w-full p-2 rounded-lg border border-slate-300 text-xs">
+                <option value="trauma">Suspected Acute Stroke / Head Trauma (Emergent)</option>
+                <option value="preop">Pre-operative Evaluation within 24 Hours</option>
+                <option value="chronic">Chronic Lumbar Discomfort (Stable Outpatient)</option>
+                <option value="routine">Annual Executive Health Checkup Screening</option>
+              </select>
+            </div>
+
+            <button id="ai-btn-triage" type="button" class="w-full py-2 px-4 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all">
+              Run Priority Triage Evaluation
+            </button>
+          </div>
+
+          <div id="ai-triage-output" class="mt-4">
+            <div class="p-3 bg-white border border-dashed border-slate-300 rounded-xl text-center text-xs text-slate-400">
+              Select a clinical scenario to view algorithmic urgency classification and SLA queue assignments.
+            </div>
+          </div>
+        </div>
+
+        <!-- AI TOOL 4 & 5: SMART RESCHEDULER & SUMMARY ASSISTANT -->
+        <div class="space-y-6">
+          
+          <!-- AI TOOL 4: SMART RESCHEDULER -->
+          <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/50 shadow-sm">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs uppercase font-extrabold tracking-wider text-teal-600">AI Tool 4</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-teal-100 text-teal-800">Dynamic Re-Slotting</span>
+            </div>
+            <h3 class="text-base font-bold text-slate-900 mb-1">Smart Rescheduler</h3>
+            <p class="text-xs text-slate-500 mb-3">If an appointment conflicts with an urgent emergency intake, this engine searches the state space for minimum-delay re-slotting.</p>
+
+            <button id="ai-btn-reschedule" type="button" class="w-full py-2 px-4 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold shadow-sm transition-all">
+              Simulate Emergency Conflict & Find Alternatives
+            </button>
+            <div id="ai-resched-output" class="mt-3"></div>
+          </div>
+
+          <!-- AI TOOL 5: APPOINTMENT SUMMARY ASSISTANT -->
+          <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/50 shadow-sm">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs uppercase font-extrabold tracking-wider text-purple-600">AI Tool 5</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-100 text-purple-800">Clinical Summary</span>
+            </div>
+            <h3 class="text-base font-bold text-slate-900 mb-1">Appointment Summary Assistant</h3>
+            <p class="text-xs text-slate-500 mb-3">Compiles confirmed scheduling details, fasting instructions, and doctor reviews into an executive patient summary.</p>
+
+            <button id="ai-btn-summary" type="button" class="w-full py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all">
+              Generate Structured Appointment Summary
+            </button>
+            <div id="ai-summary-output" class="mt-3"></div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ====================================================================
+       6. INTERACTIVE SCHEDULER & BOOKING ENGINE
+       ==================================================================== -->
+  <section id="scheduler" class="py-20 bg-slate-50 border-b border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-14">
+        <h2 class="text-xs uppercase tracking-widest font-extrabold text-sky-600">Live Demonstration Engine</h2>
+        <p class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2">Try the Smart Scheduler</p>
+        <p class="text-sm text-slate-500 mt-2">
+          Experience real-time medical test scheduling with live constraint validation, priority handling, and doctor video consultation options.
+        </p>
+      </div>
+
+      <div class="max-w-4xl mx-auto bg-white rounded-3xl border border-slate-200/90 shadow-xl overflow-hidden">
+        
+        <!-- Scheduler Stepper Banner -->
+        <div class="bg-gradient-to-r from-sky-600 to-teal-600 px-6 py-4 text-white flex items-center justify-between flex-wrap gap-2">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></span>
+            <span class="text-xs font-bold uppercase tracking-wider">Interactive Scheduling Portal</span>
+          </div>
+          <span class="text-xs font-mono bg-white/20 px-2.5 py-0.5 rounded-full">DEMO DATA ACTIVE</span>
+        </div>
+
+        <form id="scheduler-form" class="p-6 sm:p-8 space-y-6">
+          
+          <!-- Section 1: Patient Information -->
+          <div>
+            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider text-sky-700 mb-3 flex items-center gap-2">
+              <span>1. Patient Details</span>
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label for="sched-name" class="block text-xs font-semibold text-slate-700 mb-1">Full Name *</label>
+                <input id="sched-name" type="text" required placeholder="e.g. John Doe" value="John Doe" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+              </div>
+              <div>
+                <label for="sched-email" class="block text-xs font-semibold text-slate-700 mb-1">Email Address *</label>
+                <input id="sched-email" type="email" required placeholder="e.g. john.doe@example.com" value="john.doe@example.com" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+              </div>
+              <div>
+                <label for="sched-phone" class="block text-xs font-semibold text-slate-700 mb-1">Phone Number *</label>
+                <input id="sched-phone" type="tel" required placeholder="e.g. +91 98765 43210" value="+91 98765 43210" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Service & Test Selection -->
+          <div class="pt-4 border-t border-slate-100">
+            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider text-sky-700 mb-3 flex items-center justify-between">
+              <span>2. Diagnostic Service & Priority</span>
+              <span id="sched-duration-badge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600">
+                Duration: --
+              </span>
+            </h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div class="sm:col-span-2">
+                <label for="sched-test" class="block text-xs font-semibold text-slate-700 mb-1">Select Diagnostic Test *</label>
+                <select id="sched-test" required class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:border-sky-500 bg-white">
+                  <!-- Populated via JavaScript dynamically -->
+                </select>
+              </div>
+
+              <div>
+                <label for="sched-priority" class="block text-xs font-semibold text-slate-700 mb-1">Appointment Priority *</label>
+                <select id="sched-priority" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:border-sky-500 bg-white">
+                  <option value="urgent">Urgent (Within 2h SLA)</option>
+                  <option value="high">High (Within 24h SLA)</option>
+                  <option value="normal" selected>Normal (Standard Outpatient)</option>
+                  <option value="routine">Routine (Preventive Screening)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Clinical Prep Notice (Dynamic) -->
+            <div id="sched-prep-notice" class="hidden mt-3 p-3 bg-sky-50 border border-sky-200 text-sky-800 rounded-xl text-xs">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Section 3: Consultation Type & Doctor Selection -->
+          <div class="pt-4 border-t border-slate-100">
+            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider text-sky-700 mb-3">
+              3. Consultation Type & Physician Review
+            </h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="sched-consultation-type" class="block text-xs font-semibold text-slate-700 mb-1">Consultation Mode *</label>
+                <select id="sched-consultation-type" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:border-sky-500 bg-white">
+                  <option value="Diagnostic Test">Diagnostic Test Only</option>
+                  <option value="Doctor Video Consultation">Doctor Video Consultation</option>
+                  <option value="Diagnostic Test + Doctor Video Consultation" selected>Diagnostic Test + Doctor Video Consultation</option>
+                </select>
+              </div>
+
+              <div id="sched-doctor-wrapper">
+                <label for="sched-doctor" class="block text-xs font-semibold text-slate-700 mb-1">Supervising Specialist (DEMO)</label>
+                <select id="sched-doctor" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:border-sky-500 bg-white">
+                  <!-- Populated via JavaScript dynamically -->
+                </select>
+              </div>
+            </div>
+
+            <!-- Video Consultation Notice -->
+            <div id="sched-video-notice" class="mt-3 p-3 bg-teal-50 border border-teal-200 text-teal-800 rounded-xl text-xs flex items-center justify-between flex-wrap gap-2">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-teal-600 animate-pulse"></span>
+                <span><strong>Video Consultation Available:</strong> High-definition simulated tele-radiology session included.</span>
+              </div>
+              <button type="button" class="btn-open-video-call px-3 py-1 bg-teal-700 text-white rounded-lg text-xs font-semibold hover:bg-teal-800 shadow-sm transition-all">
+                Test Demo Video Call
+              </button>
+            </div>
+          </div>
+
+          <!-- Section 4: Date & Time Picker -->
+          <div class="pt-4 border-t border-slate-100">
+            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider text-sky-700 mb-3">
+              4. Preferred Schedule Window
+            </h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="sched-date" class="block text-xs font-semibold text-slate-700 mb-1">Appointment Date *</label>
+                <input id="sched-date" type="date" required class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:border-sky-500">
+              </div>
+
+              <div>
+                <label for="sched-time" class="block text-xs font-semibold text-slate-700 mb-1">Preferred Time Interval *</label>
+                <select id="sched-time" required class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:border-sky-500 bg-white">
+                  <option value="09:00">09:00 AM</option>
+                  <option value="09:30">09:30 AM</option>
+                  <option value="10:00">10:00 AM (Known Test Slot)</option>
+                  <option value="10:30">10:30 AM</option>
+                  <option value="11:00">11:00 AM</option>
+                  <option value="11:30">11:30 AM</option>
+                  <option value="12:00">12:00 PM</option>
+                  <option value="14:00">02:00 PM</option>
+                  <option value="14:30">02:30 PM</option>
+                  <option value="15:00">03:00 PM</option>
+                  <option value="15:30">03:30 PM</option>
+                  <option value="16:00">04:00 PM</option>
+                  <option value="16:30">04:30 PM</option>
+                  <option value="17:00">05:00 PM</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 5: AI Live Recommendation & Feasibility Output -->
+          <div id="ai-recommendation-box" class="pt-2">
+            <!-- Dynamically populated by SCHEDULER_CORE -->
+          </div>
+
+          <!-- Submit Confirmation Button -->
+          <div class="pt-4 flex items-center justify-end gap-3">
+            <button id="btn-confirm-scheduler" type="submit" disabled class="w-full sm:w-auto px-8 py-3 text-sm font-semibold text-white bg-gradient-to-r from-sky-600 to-teal-600 hover:from-sky-700 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl shadow-lg shadow-sky-600/20 transition-all">
+              Confirm Appointment
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+
+      <!-- ====================================================================
+           7. APPOINTMENT CONFIRMATION CARD (Dynamically Appears on Booking)
+           ==================================================================== -->
+      <div id="appointment-confirmation-section" class="max-w-4xl mx-auto mt-10 hidden animate-fadeIn">
+        
+        <div class="bg-white rounded-3xl border-2 border-emerald-500 shadow-2xl p-6 sm:p-10 relative overflow-hidden">
+          
+          <!-- Background watermark -->
+          <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-emerald-50 rounded-full pointer-events-none -z-0"></div>
+
+          <!-- Print only header -->
+          <div class="hidden print-only-header text-center">
+            <h2 class="text-2xl font-bold" data-config="BUSINESS_NAME">MedSched AI Technologies</h2>
+            <p class="text-xs text-slate-500" data-config="BUSINESS_ADDRESS_FULL">Bangalore, India</p>
+            <p class="text-xs font-mono font-bold mt-1">OFFICIAL APPOINTMENT RECEIPT (DEMO)</p>
+          </div>
+
+          <!-- Top Status Bar -->
+          <div class="flex items-center justify-between border-b border-slate-200 pb-5 mb-6 flex-wrap gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+                  Appointment Confirmed
+                </span>
+                <h3 class="text-xl font-extrabold text-slate-900 mt-1">Diagnostic Booking Receipt</h3>
+              </div>
+            </div>
+            
+            <div class="text-right">
+              <div class="text-xs text-slate-400 font-mono">Appointment Reference</div>
+              <div id="conf-id" class="text-base font-extrabold text-sky-700 font-mono">MS-20261003-001</div>
+              <div class="text-[10px] text-amber-600 font-semibold">DEMO APPOINTMENT</div>
+            </div>
+          </div>
+
+          <!-- Summary Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs mb-8">
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+              <span class="text-slate-400 block mb-0.5">Patient Name</span>
+              <strong id="conf-patient" class="text-sm text-slate-900 block truncate">John Doe</strong>
+              <span id="conf-phone" class="text-[11px] text-slate-500 block">+91 98765 43210</span>
+              <span id="conf-email" class="text-[11px] text-slate-500 block truncate">john.doe@example.com</span>
+            </div>
+
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+              <span class="text-slate-400 block mb-0.5">Service & Room</span>
+              <strong id="conf-service" class="text-sm text-slate-900 block truncate">MRI Brain (45 min)</strong>
+              <span id="conf-room" class="text-[11px] text-emerald-700 font-semibold block">MRI Room 1</span>
+              <span id="conf-priority" class="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-100 text-sky-800 inline-block mt-1">NORMAL</span>
+            </div>
+
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+              <span class="text-slate-400 block mb-0.5">Date & Time Interval</span>
+              <strong id="conf-date" class="text-sm text-slate-900 block">2026-10-03</strong>
+              <span id="conf-time" class="text-[11px] text-slate-700 font-mono font-medium block">10:00 AM – 10:45 AM</span>
+              <span class="text-[10px] text-slate-400 block mt-1">Arrive 15 min early</span>
+            </div>
+
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 sm:col-span-2">
+              <span class="text-slate-400 block mb-0.5">Supervising Specialist</span>
+              <strong id="conf-doctor" class="text-sm text-slate-900 block">Dr. Ananya Sharma (Radiology)</strong>
+              <span id="conf-consultation" class="text-[11px] text-slate-600 block">Diagnostic Test + Doctor Video Consultation</span>
+            </div>
+
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+              <span class="text-slate-400 block mb-0.5">Status</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800">
+                Confirmed & Locked
+              </span>
+              <span class="text-[10px] text-slate-400 block mt-1">Room Slot Allocated</span>
+            </div>
+          </div>
+
+          <!-- Video consultation prompt if chosen -->
+          <div id="conf-video-cta" class="mb-8 p-4 bg-teal-50 border border-teal-200 rounded-2xl flex items-center justify-between flex-wrap gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center font-bold">
+                📹
+              </div>
+              <div>
+                <div class="font-bold text-sm text-teal-900">Telehealth Video Review Ready</div>
+                <div class="text-xs text-teal-700">Your video consultation room is ready with Dr. Ananya Sharma.</div>
+              </div>
+            </div>
+            <button type="button" class="btn-open-video-call px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold shadow-md transition-all">
+              Join Video Consultation
+            </button>
+          </div>
+
+          <!-- Action Buttons (All 5 Working) -->
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-6 border-t border-slate-200 no-print">
+            
+            <div class="flex flex-wrap items-center gap-2">
+              <button id="btn-download-appt" type="button" class="px-3.5 py-2 text-xs font-semibold bg-white border border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 shadow-sm flex items-center gap-1.5 transition-all">
+                <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                Download Receipt (.txt)
+              </button>
+              
+              <button id="btn-email-appt" type="button" class="px-3.5 py-2 text-xs font-semibold bg-white border border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 shadow-sm flex items-center gap-1.5 transition-all">
+                <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                Email Appointment
+              </button>
+              
+              <button id="btn-whatsapp-appt" type="button" class="px-3.5 py-2 text-xs font-semibold bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-xl hover:bg-emerald-100 shadow-sm flex items-center gap-1.5 transition-all">
+                <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.299.144.347.491 1.2.534 1.288.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.861.173.086.275.072.376-.044.101-.116.433-.506.549-.68.116-.173.231-.144.39-.086s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824z"/></svg>
+                Send via WhatsApp
+              </button>
+
+              <button id="btn-print-appt" type="button" class="px-3.5 py-2 text-xs font-semibold bg-white border border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 shadow-sm flex items-center gap-1.5 transition-all">
+                <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                Print Slip
+              </button>
+            </div>
+
+            <button id="btn-book-another" type="button" class="px-4 py-2 text-xs font-bold text-sky-700 hover:text-sky-800 hover:bg-sky-50 rounded-xl border border-sky-200 transition-all">
+              + Book Another Appointment
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ====================================================================
+       8. ALGORITHMS BEHIND THE SCHEDULER (6 Paradigms)
+       ==================================================================== -->
+  <section id="algorithms" class="py-20 bg-white border-b border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2 class="text-xs uppercase tracking-widest font-extrabold text-sky-600">Computer Science Rigor</h2>
+        <p class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2">Algorithms Behind the Scheduler</p>
+        <p class="text-base text-slate-500 mt-3">
+          Practical applications of classical algorithm paradigms engineered specifically for hospital and diagnostic suite constraints.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Algorithm 1: GREEDY -->
+        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/50 shadow-sm flex flex-col justify-between card-hover-effect">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="w-10 h-10 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-sm">
+                01
+              </span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-100 text-sky-800">Fast Primary Engine</span>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 mb-1">GREEDY</h3>
+            <p class="text-xs font-semibold text-sky-700 mb-2">Priority Queue + Earliest Feasible Gap</p>
+            <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+              Fast selection of feasible appointment slots based on priority and availability. Processes requests in Max-Heap order and greedily binds the earliest gap satisfying room, duration, and doctor constraints.
+            </p>
+            <div class="p-2.5 bg-white rounded-lg border border-slate-200 text-[10px] font-mono text-slate-600 mb-4 space-y-1">
+              <div>Priority Queue (Max-Heap)</div>
+              <div>↓ Highest Priority Request</div>
+              <div>↓ Find Earliest Feasible Gap</div>
+              <div class="text-emerald-700 font-bold">✓ Confirm Slot</div>
+            </div>
+          </div>
+          <button type="button" class="btn-view-algo-demo w-full py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all" data-algo="greedy">
+            View Greedy Interactive Demo →
+          </button>
+        </div>
+
+        <!-- Algorithm 2: DIVIDE & CONQUER -->
+        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/50 shadow-sm flex flex-col justify-between card-hover-effect">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">
+                02
+              </span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-800">Partition Engine</span>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 mb-1">DIVIDE & CONQUER</h3>
+            <p class="text-xs font-semibold text-indigo-700 mb-2">Departmental Isolation & Merge</p>
+            <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+              Break large scheduling problems into smaller groups such as departments, dates, or test types. Solves each sub-problem independently in parallel and merges into a conflict-free master timetable.
+            </p>
+            <div class="p-2.5 bg-white rounded-lg border border-slate-200 text-[10px] font-mono text-slate-600 mb-4 space-y-1">
+              <div>Full Hospital Request Pool</div>
+              <div>→ MRI / CT / Ultrasound / X-Ray</div>
+              <div>→ Solve Local Partitions</div>
+              <div class="text-indigo-700 font-bold">✓ Merge Master Timeline</div>
+            </div>
+          </div>
+          <button type="button" class="btn-view-algo-demo w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all" data-algo="divide">
+            View Divide & Conquer Demo →
+          </button>
+        </div>
+
+        <!-- Algorithm 3: DYNAMIC PROGRAMMING -->
+        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/50 shadow-sm flex flex-col justify-between card-hover-effect">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm">
+                03
+              </span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-100 text-purple-800">Value Maximizer</span>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 mb-1">DYNAMIC PROGRAMMING</h3>
+            <p class="text-xs font-semibold text-purple-700 mb-2">State Matrix / Weighted Knapsack</p>
+            <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+              Explore scheduling states to maximize successful appointments under constraints. Uses subproblem memoization to pick the optimal subset of appointments maximizing cumulative priority score.
+            </p>
+            <div class="p-2.5 bg-white rounded-lg border border-slate-200 text-[10px] font-mono text-slate-600 mb-4 space-y-1">
+              <div>State: DP[i, t]</div>
+              <div>max(DP[i-1,t], DP[i-1,t-w] + v)</div>
+              <div>2D State Table Memoization</div>
+              <div class="text-purple-700 font-bold">✓ Optimal Clinical Value</div>
+            </div>
+          </div>
+          <button type="button" class="btn-view-algo-demo w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all" data-algo="dp">
+            View Dynamic Programming Matrix →
+          </button>
+        </div>
+
+        <!-- Algorithm 4: BACKTRACKING -->
+        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/50 shadow-sm flex flex-col justify-between card-hover-effect">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm">
+                04
+              </span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800">Conflict Resolver</span>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 mb-1">BACKTRACKING</h3>
+            <p class="text-xs font-semibold text-amber-700 mb-2">Recursive Undo & Branch Probing</p>
+            <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+              Try a scheduling choice, detect conflicts, undo the choice, and explore another possibility. Essential when initial assignments block downstream doctor consultations or urgent arrivals.
+            </p>
+            <div class="p-2.5 bg-white rounded-lg border border-slate-200 text-[10px] font-mono text-slate-600 mb-4 space-y-1">
+              <div>TRY Slot 10:00 AM</div>
+              <div>→ CONFLICT Detected (Occupied)</div>
+              <div>→ BACKTRACK (Undo 10:00 AM)</div>
+              <div class="text-emerald-700 font-bold">✓ TRY 10:45 AM → SUCCESS</div>
+            </div>
+          </div>
+          <button type="button" class="btn-view-algo-demo w-full py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all" data-algo="backtrack">
+            View Backtracking Stepper →
+          </button>
+        </div>
+
+        <!-- Algorithm 5: BRANCH & BOUND -->
+        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/50 shadow-sm flex flex-col justify-between card-hover-effect">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-sm">
+                05
+              </span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-teal-100 text-teal-800">State-Space Pruning</span>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 mb-1">BRANCH & BOUND</h3>
+            <p class="text-xs font-semibold text-teal-700 mb-2">Upper/Lower Bounding & Cutoff</p>
+            <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+              Explore candidate schedules while pruning branches that cannot provide useful solutions. Computes an admissible bound and terminates branches that violate physical room exclusivity.
+            </p>
+            <div class="p-2.5 bg-white rounded-lg border border-slate-200 text-[10px] font-mono text-slate-600 mb-4 space-y-1">
+              <div>Candidate Schedules A, B, C, D</div>
+              <div>→ Bound(B) < Best Known (Prune)</div>
+              <div>→ Infeasible Overlap C (Prune)</div>
+              <div class="text-teal-700 font-bold">✓ Selected Optimal: Branch A</div>
+            </div>
+          </div>
+          <button type="button" class="btn-view-algo-demo w-full py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold shadow-sm transition-all" data-algo="branch">
+            View Branch & Bound Tree →
+          </button>
+        </div>
+
+        <!-- Algorithm 6: GRAPH THEORY -->
+        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/50 shadow-sm flex flex-col justify-between card-hover-effect">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm">
+                06
+              </span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-800">Network Matching</span>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 mb-1">GRAPH THEORY</h3>
+            <p class="text-xs font-semibold text-blue-700 mb-2">Multi-Partite Flow Network</p>
+            <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+              Represent relationships between patients, tests, doctors, rooms, and time slots. Models resource compatibility as edges and solves scheduling via maximum bipartite matching.
+            </p>
+            <div class="p-2.5 bg-white rounded-lg border border-slate-200 text-[10px] font-mono text-slate-600 mb-4 space-y-1">
+              <div>Patient → Test Compatibility</div>
+              <div>→ Test → Diagnostic Room</div>
+              <div>→ Room → Time Slot Window</div>
+              <div class="text-blue-700 font-bold">✓ Doctor Supervision Edge</div>
+            </div>
+          </div>
+          <button type="button" class="btn-view-algo-demo w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all" data-algo="graph">
+            Explore Interactive Graph Model →
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ====================================================================
+       9. TECHNICAL ARCHITECTURE & DATA STRUCTURES
+       ==================================================================== -->
+  <section class="py-16 bg-slate-900 text-white border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-12">
+        <h2 class="text-xs uppercase tracking-widest font-extrabold text-sky-400">Engineering Specification</h2>
+        <p class="text-3xl font-extrabold text-white mt-1">Technical Architecture</p>
+        <p class="text-xs text-slate-400 mt-2">End-to-end data pipeline from client application to constraint engine and messaging services.</p>
+      </div>
+
+      <!-- Flow Architecture -->
+      <div class="p-6 bg-slate-800/80 border border-slate-700 rounded-2xl mb-10 overflow-x-auto">
+        <div class="flex items-center justify-between min-w-[720px] text-xs font-mono">
+          <div class="p-3 bg-sky-950/80 border border-sky-600 rounded-xl text-center w-36">
+            <span class="text-sky-400 font-bold block">Frontend UI</span>
+            <span class="text-[10px] text-slate-400">Tailwind + ES6</span>
+          </div>
+          <span class="text-sky-500 font-bold">──────►</span>
+          <div class="p-3 bg-teal-950/80 border border-teal-600 rounded-xl text-center w-36">
+            <span class="text-teal-400 font-bold block">Scheduling API</span>
+            <span class="text-[10px] text-slate-400">REST Endpoints</span>
+          </div>
+          <span class="text-teal-500 font-bold">──────►</span>
+          <div class="p-3 bg-purple-950/80 border border-purple-600 rounded-xl text-center w-40">
+            <span class="text-purple-400 font-bold block">Scheduling Engine</span>
+            <span class="text-[10px] text-slate-400">6 Algorithm Cores</span>
+          </div>
+          <span class="text-purple-500 font-bold">──────►</span>
+          <div class="p-3 bg-amber-950/80 border border-amber-600 rounded-xl text-center w-36">
+            <span class="text-amber-400 font-bold block">Storage Layer</span>
+            <span class="text-[10px] text-slate-400">ACID State Store</span>
+          </div>
+          <span class="text-amber-500 font-bold">──────►</span>
+          <div class="p-3 bg-rose-950/80 border border-rose-600 rounded-xl text-center w-40">
+            <span class="text-rose-400 font-bold block">Notification Bus</span>
+            <span class="text-[10px] text-slate-400">WhatsApp, Email, WebRTC</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Implemented Data Structures & Big-O Table -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+        
+        <div class="p-5 bg-slate-800/60 border border-slate-700/80 rounded-2xl">
+          <h3 class="font-bold text-sky-400 text-sm mb-3">Core Data Structures Employed</h3>
+          <ul class="space-y-2 text-slate-300">
+            <li><strong class="text-white">Priority Queue (Max-Heap):</strong> O(1) peek, O(log N) insertion for sorting urgent patients by SLA weight.</li>
+            <li><strong class="text-white">Hash Maps & Sets:</strong> O(1) constant time room occupancy lookup and doctor availability sets.</li>
+            <li><strong class="text-white">Dynamic Programming Table:</strong> 2D array matrix tracking subproblem states DP[i][t].</li>
+            <li><strong class="text-white">State-Space Search Tree:</strong> Candidate branch representation with bounding functions for Branch & Bound.</li>
+            <li><strong class="text-white">Multi-Partite Graph:</strong> Adjacency lists linking Patients, Tests, Rooms, Slots, and Doctors.</li>
+          </ul>
+        </div>
+
+        <div class="p-5 bg-slate-800/60 border border-slate-700/80 rounded-2xl">
+          <h3 class="font-bold text-teal-400 text-sm mb-3">Accurate Algorithm Complexity</h3>
+          <ul class="space-y-2 text-slate-300">
+            <li><strong class="text-white">Greedy Scheduler:</strong> O(N log N + N · S) time, O(N + S) space.</li>
+            <li><strong class="text-white">Divide & Conquer:</strong> O(K · (N/K log(N/K)) + N) time, O(N) space.</li>
+            <li><strong class="text-white">Dynamic Programming:</strong> O(N · W) time, O(N · W) space (W = discretized intervals).</li>
+            <li><strong class="text-white">Backtracking:</strong> O(M^D) with early state pruning, O(D) recursion stack.</li>
+            <li><strong class="text-white">Branch & Bound:</strong> Sub-exponential with tight admissible bounding.</li>
+            <li><strong class="text-white">Graph Network:</strong> O(V + E) BFS traversal / O(V² E) max flow matching.</li>
+          </ul>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ====================================================================
+       10. INTERACTIVE DEMO DASHBOARD SHOWCASE
+       ==================================================================== -->
+  <section id="dashboard" class="py-20 bg-slate-50 border-b border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-12">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold mb-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Live Operations Simulator</span>
+        </div>
+        <p class="text-3xl sm:text-4xl font-extrabold text-slate-900">Interactive Demo Dashboard</p>
+        <p class="text-sm text-slate-500 mt-2">
+          Demonstrates real-time administrative visibility: room status, urgent queue, and scheduled timeline. Clearly marked with <strong>DEMO DATA</strong>.
+        </p>
+      </div>
+
+      <div class="bg-white rounded-3xl border border-slate-200/90 shadow-xl p-6 sm:p-8">
+        
+        <!-- Top Stats Metrics -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
+          <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80">
+            <span class="text-[11px] text-slate-500 block">Today's Appointments</span>
+            <strong id="dash-stat-today" class="text-xl font-extrabold text-slate-900 block mt-1">24</strong>
+            <span class="text-[10px] text-emerald-600 font-medium">↑ 100% on schedule</span>
+          </div>
+
+          <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80">
+            <span class="text-[11px] text-slate-500 block">Available Rooms</span>
+            <strong id="dash-stat-rooms" class="text-xl font-extrabold text-slate-900 block mt-1">5 Active</strong>
+            <span class="text-[10px] text-slate-400 font-medium">All Suites Online</span>
+          </div>
+
+          <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80">
+            <span class="text-[11px] text-slate-500 block">Pending Requests</span>
+            <strong id="dash-stat-pending" class="text-xl font-extrabold text-amber-600 block mt-1">7 Requests</strong>
+            <span class="text-[10px] text-slate-400 font-medium">Greedy queue ready</span>
+          </div>
+
+          <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80">
+            <span class="text-[11px] text-slate-500 block">Urgent Appointments</span>
+            <strong id="dash-stat-urgent" class="text-xl font-extrabold text-rose-600 block mt-1">3 Urgent</strong>
+            <span class="text-[10px] text-rose-600 font-medium">Expedited SLA</span>
+          </div>
+
+          <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80">
+            <span class="text-[11px] text-slate-500 block">Video Consultations</span>
+            <strong id="dash-stat-video" class="text-xl font-extrabold text-teal-600 block mt-1">8 Active</strong>
+            <span class="text-[10px] text-teal-600 font-medium">Telehealth Synced</span>
+          </div>
+
+          <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80">
+            <span class="text-[11px] text-slate-500 block">Room Utilization</span>
+            <strong id="dash-stat-utilization" class="text-xl font-extrabold text-sky-700 block mt-1">84%</strong>
+            <span class="text-[10px] text-sky-600 font-medium">Optimized by DP</span>
+          </div>
+        </div>
+
+        <!-- Room Status Grid -->
+        <div class="mb-8">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider text-sky-700">
+              Live Diagnostic Suites Monitor
+            </h3>
+            <span class="text-[11px] text-slate-400 font-mono">DEMO ROOMS</span>
+          </div>
+          <div id="dash-rooms-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <!-- Dynamically populated by DASHBOARD -->
+          </div>
+        </div>
+
+        <!-- Appointment Timeline & Table -->
+        <div>
+          <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider text-sky-700">
+                Today's Scheduled Appointments
+              </h3>
+              <p class="text-xs text-slate-500">Live timeline generated with simulated sample patient records.</p>
+            </div>
+
+            <!-- Filters -->
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <button type="button" class="dash-filter-btn px-3 py-1 text-xs font-semibold rounded-lg bg-sky-600 text-white active" data-filter="all">All</button>
+              <button type="button" class="dash-filter-btn px-3 py-1 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200" data-filter="urgent">Urgent</button>
+              <button type="button" class="dash-filter-btn px-3 py-1 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200" data-filter="mri">MRI</button>
+              <button type="button" class="dash-filter-btn px-3 py-1 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200" data-filter="ct">CT</button>
+              <button type="button" class="dash-filter-btn px-3 py-1 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200" data-filter="video">Video Calls</button>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto border border-slate-200 rounded-2xl">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 text-[11px] font-bold text-slate-500 border-b border-slate-200">
+                  <th class="py-3 px-3">Ref ID</th>
+                  <th class="py-3 px-3">Patient</th>
+                  <th class="py-3 px-3">Diagnostic Test</th>
+                  <th class="py-3 px-3">Time Window</th>
+                  <th class="py-3 px-3">Priority</th>
+                  <th class="py-3 px-3">Status</th>
+                  <th class="py-3 px-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="dash-appointments-tbody" class="divide-y divide-slate-100">
+                <!-- Dynamically populated by DASHBOARD -->
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ====================================================================
+       11. CLIENT BENEFITS SECTION
+       ==================================================================== -->
+  <section id="client-benefits" class="py-20 bg-white border-b border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2 class="text-xs uppercase tracking-widest font-extrabold text-sky-600">Enterprise Value</h2>
+        <p class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2">Built for Healthcare Operations</p>
+        <p class="text-base text-slate-500 mt-3">Address the administrative bottlenecks of clinical diagnostic scheduling without risking patient safety.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/50 card-hover-effect">
+          <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center font-bold mb-3">✓</div>
+          <h3 class="text-sm font-bold text-slate-900 mb-1">Reduce Manual Scheduling</h3>
+          <p class="text-xs text-slate-600">Automates slot evaluations, eliminating phone tag and manual schedule coordination across front desks.</p>
+        </div>
+
+        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/50 card-hover-effect">
+          <div class="w-8 h-8 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center font-bold mb-3">✓</div>
+          <h3 class="text-sm font-bold text-slate-900 mb-1">Room Visibility</h3>
+          <p class="text-xs text-slate-600">Provides clear real-time insight into high-value scanner occupancy (MRI, CT, ultrasound, radiography).</p>
+        </div>
+
+        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/50 card-hover-effect">
+          <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold mb-3">✓</div>
+          <h3 class="text-sm font-bold text-slate-900 mb-1">Test Duration Precision</h3>
+          <p class="text-xs text-slate-600">Maintains exact procedure duration windows and sanitation buffers to avoid scanner idle times.</p>
+        </div>
+
+        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/50 card-hover-effect">
+          <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center font-bold mb-3">✓</div>
+          <h3 class="text-sm font-bold text-slate-900 mb-1">Priority Triage SLAs</h3>
+          <p class="text-xs text-slate-600">Guarantees that urgent emergency cases bypass routine outpatient backlogs deterministically.</p>
+        </div>
+
+        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/50 card-hover-effect">
+          <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold mb-3">✓</div>
+          <h3 class="text-sm font-bold text-slate-900 mb-1">Identify Conflicts Early</h3>
+          <p class="text-xs text-slate-600">Catches doctor overlaps, room unavailability, and patient time constraints before booking is committed.</p>
+        </div>
+
+        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/50 card-hover-effect">
+          <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold mb-3">✓</div>
+          <h3 class="text-sm font-bold text-slate-900 mb-1">Doctor Roster Sync</h3>
+          <p class="text-xs text-slate-600">Aligns diagnostic scan execution with radiologist reporting shifts and on-duty availability.</p>
+        </div>
+
+        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/50 card-hover-effect">
+          <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold mb-3">✓</div>
+          <h3 class="text-sm font-bold text-slate-900 mb-1">Digital Patient Vouchers</h3>
+          <p class="text-xs text-slate-600">Dispatches structured confirmations with WhatsApp, mailto, and printable appointment slips.</p>
+        </div>
+
+        <div class="p-6 rounded-2xl border border-slate-200 bg-slate-50/50 card-hover-effect">
+          <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center font-bold mb-3">✓</div>
+          <h3 class="text-sm font-bold text-slate-900 mb-1">Telehealth Ready</h3>
+          <p class="text-xs text-slate-600">Equipped with integrated video conference infrastructure for pre-scan prep and post-scan reviews.</p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ====================================================================
+       12. CLIENT LEAD FORM ("Bring Smart Scheduling to Your Organization")
+       ==================================================================== -->
+  <section id="lead-section" class="py-20 gradient-mesh border-b border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        
+        <!-- Left: Pitch & Direct Contact Channels -->
+        <div class="lg:col-span-5 space-y-6">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-100 text-sky-800 text-xs font-semibold">
+            <span>Partnership & Deployment</span>
+          </div>
+
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+            Bring Smart Scheduling to Your Organization
+          </h2>
+
+          <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
+            Deploy our intelligent multi-room scheduling engine across your diagnostic centers, hospital networks, or imaging suites.
+          </p>
+
+          <!-- Working Direct Contact Buttons -->
+          <div class="p-5 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-3">
+            <div class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">Direct Contact Channels</div>
+            
+            <a href="javascript:void(0)" class="link-email flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors text-xs font-semibold text-slate-700">
+              <span class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center">✉️</span>
+              <div>
+                <span class="block text-slate-900">Email Us</span>
+                <span class="text-[11px] text-slate-500 font-normal" data-config="BUSINESS_EMAIL">contact@medsched.example.com</span>
+              </div>
+            </a>
+
+            <a href="javascript:void(0)" class="link-whatsapp flex items-center gap-3 p-2.5 rounded-xl border border-emerald-200 hover:bg-emerald-50 transition-colors text-xs font-semibold text-emerald-800">
+              <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">💬</span>
+              <div>
+                <span class="block text-slate-900">WhatsApp Us</span>
+                <span class="text-[11px] text-slate-500 font-normal" data-config="WHATSAPP_NUMBER">+91 98765 43210</span>
+              </div>
+            </a>
+
+            <a href="javascript:void(0)" class="link-phone flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors text-xs font-semibold text-slate-700">
+              <span class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center">📞</span>
+              <div>
+                <span class="block text-slate-900">Call Us</span>
+                <span class="text-[11px] text-slate-500 font-normal" data-config="PHONE_NUMBER">+91 98765 43210</span>
+              </div>
+            </a>
+
+            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
+              <button type="button" class="scroll-to-contact py-2 px-3 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 rounded-xl text-xs font-bold transition-all text-center">
+                Book a Demo
+              </button>
+              <button type="button" class="btn-request-consultation py-2 px-3 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded-xl text-xs font-bold transition-all text-center">
+                Request Consultation
+              </button>
+            </div>
+          </div>
+
+          <!-- Video Discuss Hook -->
+          <div class="p-5 bg-teal-50 rounded-2xl border border-teal-200">
+            <h3 class="text-sm font-bold text-teal-900 mb-1">Prefer to Discuss It Live?</h3>
+            <p class="text-xs text-teal-700 mb-3">Book a short video call to discuss how the scheduling system could fit your organization's workflow.</p>
+            <button type="button" class="btn-open-video-lead px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-semibold shadow-sm transition-all">
+              Request Video Call →
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Right: Lead Capture Form -->
+        <div class="lg:col-span-7">
+          <div class="bg-white rounded-3xl border border-slate-200/90 shadow-xl p-6 sm:p-8">
+            
+            <h3 class="text-xl font-extrabold text-slate-900 mb-1">Request an Executive Product Demo</h3>
+            <p class="text-xs text-slate-500 mb-6">Fill out your organization details and our healthcare integration team will prepare a custom demonstration.</p>
+
+            <form id="client-lead-form" class="space-y-4">
+              
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label for="lead-name" class="block text-xs font-semibold text-slate-700 mb-1">Full Name *</label>
+                  <input id="lead-name" type="text" required placeholder="Dr. / Mr. / Ms. Name" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:border-sky-500">
+                </div>
+
+                <div>
+                  <label for="lead-org" class="block text-xs font-semibold text-slate-700 mb-1">Organization / Facility Name *</label>
+                  <input id="lead-org" type="text" required placeholder="e.g. City Diagnostic & Imaging Center" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:border-sky-500">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label for="lead-type" class="block text-xs font-semibold text-slate-700 mb-1">Business Type *</label>
+                  <select id="lead-type" required class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:border-sky-500 bg-white">
+                    <option value="">-- Select Facility Type --</option>
+                    <option value="Hospital">Hospital</option>
+                    <option value="Diagnostic Center">Diagnostic Center</option>
+                    <option value="Medical Laboratory">Medical Laboratory</option>
+                    <option value="Imaging Center">Imaging Center</option>
+                    <option value="Clinic">Clinic</option>
+                    <option value="Healthcare Startup">Healthcare Startup</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label for="lead-users" class="block text-xs font-semibold text-slate-700 mb-1">Number of Clinical Users / Rooms</label>
+                  <select id="lead-users" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:border-sky-500 bg-white">
+                    <option value="1-5">1 - 5 Diagnostic Rooms</option>
+                    <option value="6-20">6 - 20 Diagnostic Rooms</option>
+                    <option value="20+">20+ Multi-Center Network</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label for="lead-email" class="block text-xs font-semibold text-slate-700 mb-1">Work Email *</label>
+                  <input id="lead-email" type="email" required placeholder="name@hospital.com" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:border-sky-500">
+                </div>
+
+                <div>
+                  <label for="lead-phone" class="block text-xs font-semibold text-slate-700 mb-1">Phone Number *</label>
+                  <input id="lead-phone" type="tel" required placeholder="+91 XXXXX XXXXX" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:border-sky-500">
+                </div>
+
+                <div>
+                  <label for="lead-whatsapp" class="block text-xs font-semibold text-slate-700 mb-1">WhatsApp (Optional)</label>
+                  <input id="lead-whatsapp" type="tel" placeholder="+91 XXXXX XXXXX" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:border-sky-500">
+                </div>
+              </div>
+
+              <div>
+                <label for="lead-contact-method" class="block text-xs font-semibold text-slate-700 mb-1">Preferred Contact Method</label>
+                <select id="lead-contact-method" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:border-sky-500 bg-white">
+                  <option value="Email">Email</option>
+                  <option value="Phone">Phone</option>
+                  <option value="WhatsApp">WhatsApp</option>
+                  <option value="Video Call">Live Video Call</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="lead-requirements" class="block text-xs font-semibold text-slate-700 mb-1">Specific Requirements / Systems</label>
+                <textarea id="lead-requirements" rows="3" placeholder="Tell us about your diagnostic modalities (MRI, CT, PET, X-Ray) or existing HIS/PACS integration needs..." class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:border-sky-500"></textarea>
+              </div>
+
+              <div class="pt-2">
+                <button type="submit" class="w-full py-3.5 px-6 bg-gradient-to-r from-sky-600 to-teal-600 hover:from-sky-700 hover:to-teal-700 text-white font-bold rounded-xl shadow-lg shadow-sky-600/20 text-sm transition-all">
+                  Request a Demo
+                </button>
+                <p class="text-[11px] text-slate-400 text-center mt-2">
+                  🔒 We protect your data. Ready for integration with Formspree, EmailJS, Supabase, Google Sheets, or CRM.
+                </p>
+              </div>
+
+            </form>
+
+            <!-- Success State Message -->
+            <div id="lead-success-msg" class="hidden p-6 bg-emerald-50 border border-emerald-300 rounded-2xl text-center space-y-3 animate-fadeIn">
+              <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center font-bold text-xl">
+                ✓
+              </div>
+              <h4 class="text-lg font-bold text-emerald-900">Thank you! Your demo request has been received.</h4>
+              <p class="text-xs text-emerald-700">
+                Our healthcare technology team will connect with your organization via your preferred channel within 1 business day.
+              </p>
+              <button id="btn-reset-lead-form" type="button" class="px-4 py-2 bg-emerald-700 text-white rounded-xl text-xs font-semibold hover:bg-emerald-800 transition-all">
+                Submit Another Request
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ====================================================================
+       13. FREQUENTLY ASKED QUESTIONS (FAQ Accordion)
+       ==================================================================== -->
+  <section id="faq" class="py-20 bg-white border-b border-slate-200/80">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center mb-14">
+        <h2 class="text-xs uppercase tracking-widest font-extrabold text-sky-600">Answers & Details</h2>
+        <p class="text-3xl font-extrabold text-slate-900 mt-2">Frequently Asked Questions</p>
+      </div>
+
+      <div class="space-y-3">
+        
+        <div class="faq-item p-4 bg-slate-50 rounded-2xl border border-slate-200">
+          <button type="button" class="faq-trigger w-full flex items-center justify-between text-left font-bold text-sm text-slate-900">
+            <span>What is the Medical Test Appointment Scheduler?</span>
+            <svg class="faq-icon w-5 h-5 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </button>
+          <div class="faq-content hidden mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-200/80 pt-3">
+            It is an intelligent diagnostic scheduling platform engineered to coordinate diagnostic tests, multi-room suites, equipment requirements, appointment priorities, and supervising radiologist rosters without booking conflicts.
+          </div>
+        </div>
+
+        <div class="faq-item p-4 bg-slate-50 rounded-2xl border border-slate-200">
+          <button type="button" class="faq-trigger w-full flex items-center justify-between text-left font-bold text-sm text-slate-900">
+            <span>Who can use it?</span>
+            <svg class="faq-icon w-5 h-5 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </button>
+          <div class="faq-content hidden mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-200/80 pt-3">
+            Hospitals, diagnostic imaging centers, outpatient radiology departments, standalone laboratories, ambulatory surgical centers, and healthcare business networks seeking to maximize scanner utilization and eliminate manual scheduling errors.
+          </div>
+        </div>
+
+        <div class="faq-item p-4 bg-slate-50 rounded-2xl border border-slate-200">
+          <button type="button" class="faq-trigger w-full flex items-center justify-between text-left font-bold text-sm text-slate-900">
+            <span>Can it manage different test durations?</span>
+            <svg class="faq-icon w-5 h-5 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </button>
+          <div class="faq-content hidden mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-200/80 pt-3">
+            Yes. Test durations are configured per modality (e.g. 15 minutes for X-Ray Chest, 30 minutes for CT Chest/Ultrasound, 45 minutes for MRI Brain, and 60 minutes for MRI Spine) with customizable buffer times for patient transfer and equipment sterilization.
+          </div>
+        </div>
+
+        <div class="faq-item p-4 bg-slate-50 rounded-2xl border border-slate-200">
+          <button type="button" class="faq-trigger w-full flex items-center justify-between text-left font-bold text-sm text-slate-900">
+            <span>Can it check room availability?</span>
+            <svg class="faq-icon w-5 h-5 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </button>
+          <div class="faq-content hidden mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-200/80 pt-3">
+            Yes. The scheduler enforces strict physical exclusivity across all candidate rooms (MRI Room 1, MRI Room 2, CT Room 1, Ultrasound Room 1, X-Ray Room 1), preventing overlapping procedures and factoring in maintenance windows.
+          </div>
+        </div>
+
+        <div class="faq-item p-4 bg-slate-50 rounded-2xl border border-slate-200">
+          <button type="button" class="faq-trigger w-full flex items-center justify-between text-left font-bold text-sm text-slate-900">
+            <span>Can it manage appointment priorities?</span>
+            <svg class="faq-icon w-5 h-5 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </button>
+          <div class="faq-content hidden mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-200/80 pt-3">
+            Yes. Priority queues handle Urgent (within 2h), High (within 24h), Normal (2-3 days), and Routine (5-7 days) requests, allowing critical cases to be accommodated immediately via backtracking conflict resolution.
+          </div>
+        </div>
+
+        <div class="faq-item p-4 bg-slate-50 rounded-2xl border border-slate-200">
+          <button type="button" class="faq-trigger w-full flex items-center justify-between text-left font-bold text-sm text-slate-900">
+            <span>Can it support doctor availability?</span>
+            <svg class="faq-icon w-5 h-5 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </button>
+          <div class="faq-content hidden mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-200/80 pt-3">
+            Yes. The system synchronizes scan intervals with the duty rosters of supervising radiologists and consulting physicians, ensuring qualified medical supervision for contrast scans and clinical reviews.
+          </div>
+        </div>
+
+        <div class="faq-item p-4 bg-slate-50 rounded-2xl border border-slate-200">
+          <button type="button" class="faq-trigger w-full flex items-center justify-between text-left font-bold text-sm text-slate-900">
+            <span>Can patients receive appointment details?</span>
+            <svg class="faq-icon w-5 h-5 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </button>
+          <div class="faq-content hidden mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-200/80 pt-3">
+            Yes. Patients receive instant digital confirmations with the option to download text/HTML receipts, dispatch formatted WhatsApp confirmations via wa.me, trigger email receipts, or print official appointment slips.
+          </div>
+        </div>
+
+        <div class="faq-item p-4 bg-slate-50 rounded-2xl border border-slate-200">
+          <button type="button" class="faq-trigger w-full flex items-center justify-between text-left font-bold text-sm text-slate-900">
+            <span>Can video consultation be added?</span>
+            <svg class="faq-icon w-5 h-5 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </button>
+          <div class="faq-content hidden mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-200/80 pt-3">
+            Yes. The platform includes a working video consultation interface simulator and is architected for seamless hookup with providers such as Jitsi Meet, Daily.co, Twilio Video, or Zoom Web SDK.
+          </div>
+        </div>
+
+        <div class="faq-item p-4 bg-slate-50 rounded-2xl border border-slate-200">
+          <button type="button" class="faq-trigger w-full flex items-center justify-between text-left font-bold text-sm text-slate-900">
+            <span>Can AI tools be customized?</span>
+            <svg class="faq-icon w-5 h-5 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </button>
+          <div class="faq-content hidden mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-200/80 pt-3">
+            Yes. AI scoring weights, buffer parameters, department partitioning heuristics, and conflict detection rules can be tailored to match the unique operating procedures of your healthcare facility.
+          </div>
+        </div>
+
+        <div class="faq-item p-4 bg-slate-50 rounded-2xl border border-slate-200">
+          <button type="button" class="faq-trigger w-full flex items-center justify-between text-left font-bold text-sm text-slate-900">
+            <span>Can this be integrated into an existing healthcare workflow?</span>
+            <svg class="faq-icon w-5 h-5 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </button>
+          <div class="faq-content hidden mt-3 text-xs text-slate-600 leading-relaxed border-t border-slate-200/80 pt-3">
+            Yes. The system is designed with modular APIs that can interface with existing Hospital Information Systems (HIS), Electronic Medical Records (EMR), and Picture Archiving and Communication Systems (PACS) using HL7/FHIR or custom REST webhooks.
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ====================================================================
+       14. FOOTER & COMPREHENSIVE DISCLAIMERS
+       ==================================================================== -->
+  <footer class="bg-slate-900 text-slate-400 pt-16 pb-12 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
+        
+        <!-- Col 1: Brand Info -->
+        <div class="lg:col-span-2 space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 to-teal-500 flex items-center justify-center text-white font-bold">
+              +
+            </div>
+            <span class="text-xl font-extrabold text-white" data-config="BUSINESS_NAME">MedSched AI</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed max-w-sm" data-config="BUSINESS_TAGLINE">
+            Smart Scheduling for Modern Healthcare. Coordinate patients, diagnostic tests, rooms, priorities, and appointments through one intelligent scheduling workflow.
+          </p>
+          <div class="text-xs text-slate-500 font-mono">
+            Operating Hours: <span data-config="BUSINESS_HOURS">Monday - Saturday, 9:00 AM - 6:00 PM</span>
+          </div>
+        </div>
+
+        <!-- Col 2: Quick Links -->
+        <div class="space-y-3 text-xs">
+          <div class="font-bold text-white uppercase tracking-wider">Quick Links</div>
+          <ul class="space-y-2">
+            <li><a href="#hero" class="hover:text-white transition-colors">Home</a></li>
+            <li><a href="#features" class="hover:text-white transition-colors">Features</a></li>
+            <li><a href="#ai-tools" class="hover:text-white transition-colors">AI Assistants</a></li>
+            <li><a href="#scheduler" class="hover:text-white transition-colors">Try Scheduler</a></li>
+            <li><a href="#algorithms" class="hover:text-white transition-colors">Algorithm Engine</a></li>
+            <li><a href="#dashboard" class="hover:text-white transition-colors">Live Dashboard</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Direct Contact Details -->
+        <div class="space-y-3 text-xs">
+          <div class="font-bold text-white uppercase tracking-wider">Contact Details</div>
+          <ul class="space-y-2">
+            <li>
+              <span class="block text-slate-500">Email:</span>
+              <a href="javascript:void(0)" class="link-email text-sky-400 hover:underline" data-config="BUSINESS_EMAIL">contact@medsched.example.com</a>
+            </li>
+            <li>
+              <span class="block text-slate-500">WhatsApp:</span>
+              <a href="javascript:void(0)" class="link-whatsapp text-emerald-400 hover:underline" data-config="WHATSAPP_NUMBER">+91 98765 43210</a>
+            </li>
+            <li>
+              <span class="block text-slate-500">Telephone:</span>
+              <a href="javascript:void(0)" class="link-phone text-slate-300 hover:underline" data-config="PHONE_NUMBER">+91 98765 43210</a>
+            </li>
+            <li>
+              <span class="block text-slate-500">Facility Location:</span>
+              <span class="text-slate-300" data-config="BUSINESS_LOCATION">Bangalore, India</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Col 4: Action -->
+        <div class="space-y-3 text-xs">
+          <div class="font-bold text-white uppercase tracking-wider">Deploy System</div>
+          <p class="text-slate-400 text-xs">Schedule an organizational demo or discuss enterprise integrations.</p>
+          <button type="button" class="scroll-to-contact w-full py-2.5 px-4 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl text-xs transition-all">
+            Book a Demo
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Critical Footer Disclaimers -->
+      <div class="pt-8 border-t border-slate-800 text-[11px] text-slate-500 space-y-2">
+        <p>
+          <strong>DEMONSTRATION PLATFORM NOTICE:</strong> This web application is a technological demonstration using sample simulated data (patients, doctors, rooms, appointments). It does not provide medical diagnosis, clinical advice, or real medical care. Qualified healthcare professionals must always evaluate real patient cases.
+        </p>
+        <div class="flex items-center justify-between flex-wrap gap-2 pt-2">
+          <span>© <span data-config="COPYRIGHT_YEAR">2026</span> <span data-config="BUSINESS_LEGAL_NAME">MedSched Health Solutions Pvt. Ltd.</span> All rights reserved.</span>
+          <span class="font-mono text-[10px]">Version <span data-config="VERSION">2.4.0</span> • Built for Healthcare Operations</span>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+
+  <!-- ====================================================================
+       15. ALGORITHM INTERACTIVE PLAYGROUND MODAL
+       ==================================================================== -->
+  <div id="algo-demo-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-fadeIn">
+      
+      <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
+        <h3 id="algo-modal-title" class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">
+          Algorithm Demonstration
+        </h3>
+        <button id="algo-modal-close" type="button" class="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+
+      <div id="algo-modal-body" class="p-6 overflow-y-auto space-y-4">
+        <!-- Dynamically rendered by APP.openAlgorithmDemo -->
+      </div>
+
+      <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-end">
+        <button type="button" onclick="document.getElementById('algo-demo-modal').classList.add('hidden'); document.body.classList.remove('overflow-hidden');" class="px-4 py-2 bg-slate-800 dark:bg-slate-700 text-white rounded-xl text-xs font-semibold hover:bg-slate-700">
+          Close Demonstration
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ====================================================================
+       16. SAFE VIDEO CONSULTATION MODAL SIMULATOR
+       ==================================================================== -->
+  <div id="video-call-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 hidden">
+    <div class="bg-slate-900 rounded-3xl border border-slate-700 shadow-2xl max-w-4xl w-full flex flex-col overflow-hidden animate-fadeIn text-white">
+      
+      <!-- Video Header -->
+      <div class="p-4 bg-slate-800/80 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="w-3 h-3 rounded-full bg-rose-500 animate-pulse"></span>
+          <div>
+            <span id="video-doc-name" class="font-bold text-sm block">Dr. Ananya Sharma (DEMO)</span>
+            <span id="video-doc-spec" class="text-[11px] text-slate-400 block">Senior Radiologist • Diagnostic Review</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="font-mono text-xs bg-slate-900 px-3 py-1 rounded-full border border-slate-700 text-emerald-400">
+            <span id="video-call-timer">00:00</span>
+          </div>
+          <button id="video-modal-close" type="button" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Video Area -->
+      <div class="p-4 sm:p-6 relative bg-slate-950 flex flex-col items-center justify-center min-h-[360px] sm:min-h-[420px]">
+        
+        <!-- Doctor Simulated Feed -->
+        <div class="text-center space-y-4">
+          <div class="relative inline-block">
+            <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-gradient-to-tr from-sky-600 to-teal-500 flex items-center justify-center text-3xl font-extrabold shadow-xl mx-auto border-4 border-slate-700">
+              AS
+            </div>
+            <!-- Audio waves -->
+            <div class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 flex items-center gap-1 bg-slate-800 px-2 py-0.5 rounded-full border border-slate-600">
+              <span class="w-1 h-3 bg-emerald-400 rounded-full animate-bounce"></span>
+              <span class="w-1 h-4 bg-emerald-400 rounded-full animate-bounce delay-100"></span>
+              <span class="w-1 h-2 bg-emerald-400 rounded-full animate-bounce delay-200"></span>
+            </div>
+          </div>
+          <div>
+            <div class="font-bold text-base text-slate-100">Simulated Radiologist Live Feed</div>
+            <div class="text-xs text-slate-400">Audio & Visual Channel Synchronized (DEMO MODE)</div>
+          </div>
+        </div>
+
+        <!-- Patient PiP Preview -->
+        <div id="video-patient-preview" class="patient-pip-window flex flex-col items-center justify-center text-center p-2 transition-opacity">
+          <div class="w-8 h-8 rounded-full bg-slate-600 flex items-center justify-center text-xs font-bold mb-1">
+            YOU
+          </div>
+          <span class="text-[9px] text-slate-300">Self Preview</span>
+          <span id="video-mic-status" class="text-[8px] text-emerald-400">Mic On</span>
+        </div>
+
+        <!-- Screen Share Overlay (Hidden by default) -->
+        <div id="video-screen-overlay" class="absolute inset-4 bg-slate-900/95 border border-sky-500 rounded-2xl p-6 hidden flex flex-col justify-between">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <span class="text-xs font-bold text-sky-400 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-sky-400 animate-ping"></span>
+              Screen Sharing: MRI Axial T2 Neuro-Scan Viewer
+            </span>
+            <span class="text-[10px] text-slate-400 font-mono">DICOM 3.0</span>
+          </div>
+          <div class="p-8 text-center text-xs text-slate-400 border border-dashed border-slate-800 rounded-xl my-4">
+            [Simulated High-Resolution Brain MRI Slice Presentation]
+          </div>
+          <div class="text-[11px] text-slate-500">Presenting to patient: Dr. Ananya Sharma</div>
+        </div>
+
+      </div>
+
+      <!-- Video Control Bar -->
+      <div class="p-4 bg-slate-800/90 border-t border-slate-700 flex items-center justify-between flex-wrap gap-3">
+        <div class="flex items-center gap-2">
+          <button id="video-ctrl-mute" type="button" class="px-3.5 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5">
+            🎤 <span>Mute</span>
+          </button>
+          <button id="video-ctrl-cam" type="button" class="px-3.5 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5">
+            📹 <span>Camera</span>
+          </button>
+          <button id="video-ctrl-share" type="button" class="px-3.5 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5">
+            🖥️ <span>Share DICOM</span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="video-open-external" type="button" class="px-3 py-2 bg-sky-950 border border-sky-600 text-sky-300 hover:bg-sky-900 rounded-xl text-xs font-semibold transition-colors">
+            Open in Jitsi/Meet ↗
+          </button>
+          <button id="video-ctrl-end" type="button" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition-colors">
+            End Call
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ====================================================================
+       17. VIDEO CALL LEAD REQUEST MODAL ("Prefer to Discuss Live?")
+       ==================================================================== -->
+  <div id="video-lead-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full p-6 animate-fadeIn">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+        <div>
+          <h3 class="font-extrabold text-slate-900 text-base">Schedule an Executive Video Call</h3>
+          <p class="text-xs text-slate-500">Discuss scheduling integration with our healthcare solutions team.</p>
+        </div>
+        <button id="close-video-lead-modal" type="button" class="p-1 rounded-lg text-slate-400 hover:bg-slate-100">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+
+      <form id="video-lead-form" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Your Name *</label>
+          <input id="vlead-name" type="text" required placeholder="Dr. / Mr. Name" class="w-full p-2.5 rounded-xl border border-slate-300 text-xs">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Organization *</label>
+          <input id="vlead-org" type="text" required placeholder="Facility Name" class="w-full p-2.5 rounded-xl border border-slate-300 text-xs">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Email *</label>
+            <input id="vlead-email" type="email" required placeholder="you@hospital.com" class="w-full p-2.5 rounded-xl border border-slate-300 text-xs">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Phone *</label>
+            <input id="vlead-phone" type="tel" required placeholder="+91 XXXXX XXXXX" class="w-full p-2.5 rounded-xl border border-slate-300 text-xs">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Preferred Date *</label>
+            <input id="vlead-date" type="date" required class="w-full p-2.5 rounded-xl border border-slate-300 text-xs">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Preferred Time *</label>
+            <input id="vlead-time" type="time" required value="11:00" class="w-full p-2.5 rounded-xl border border-slate-300 text-xs">
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Notes / Questions</label>
+          <textarea id="vlead-msg" rows="2" placeholder="Facility size, modalities, specific scheduling bottlenecks..." class="w-full p-2.5 rounded-xl border border-slate-300 text-xs"></textarea>
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded-xl text-xs shadow-md transition-all">
+          Confirm Video Discussion Request
+        </button>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ====================================================================
+       SCRIPTS (Modular & Clean)
+       ==================================================================== -->
+  <script src="js/config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/algorithms.js"></script>
+  <script src="js/scheduler.js"></script>
+  <script src="js/ai-tools.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/video-call.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
